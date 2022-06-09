@@ -26,10 +26,9 @@
 
 &i2c2 {
     /* MIPI-DSI to HDMI adapter */
-    mipi_dsi_hdmi: lt8912@48 {
+    mipi_dsi_hdmi: sn65dsi83@2c {
         pinctrl-names = "default";
         pinctrl-0 = <&pinctrl_mipi2hdmi_std>;
-        reset-gpios = <&gpio4 28 GPIO_ACTIVE_LOW>;
-        swap-mipi-pn;
+        enable-gpios = <&gpio4 28 GPIO_ACTIVE_HIGH>;
     };
 };

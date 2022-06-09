@@ -37,7 +37,7 @@
 
 &i2c2 {
     /* MIPI-DSI to HDMI adapter */
-    mipi_dsi_hdmi: lt8912@48 {
+    mipi_dsi_hdmi: sn65dsi83@2c {
         ports {
             port@2 {
                 reg = <2>;

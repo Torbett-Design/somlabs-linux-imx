@@ -250,10 +250,11 @@
         #size-cells = <0>;
 
         ethphy0: ethernet-phy@0 {
-            compatible = "ethernet-phy-ieee802.3-c22";
-            reg = <0>;
+                reg = <0>;
+                
         };
     };
+      
 };
 
 &i2c2 {
