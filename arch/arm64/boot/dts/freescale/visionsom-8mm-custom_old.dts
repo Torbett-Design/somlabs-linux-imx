@@ -1,0 +1,218 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2020 SomLabs
+ *
+ */
+
+/dts-v1/;
+
+#include "visionsom-8mm-cb-std.dtsi"
+
+/ {
+        /* dummy regulator for simple-panel driver */
+    dummy: regulator-dummy {
+        compatible = "regulator-fixed";
+        regulator-name = "dummy";
+        regulator-always-on;
+    };
+
+};
+
+&i2c2 {
+
+    ph128800t004_touch: ilitek-ili251x@41 {
+        compatible = "ilitek,ili251x";
+        reg = <0x41>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_touch>;
+        interrupt-parent = <&gpio5>;
+        interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
+        reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
+        touchscreen-size-x = <16384>;
+        touchscreen-size-y = <9600>;
+    };
+
+    /* MIPI-DSI to LVDS adapter */
+    mipi_dsi_lvds: sn65dsi83@2c {
+        compatible = "ti,sn65dsi83";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_mipi2lvds_std>;
+
+
+        enable-gpios = <&gpio5 22 GPIO_ACTIVE_HIGH>;
+        	compatible = "ti,sn65dsi83";
+
+		ti,dsi-lanes = <4>;
+		ti,lvds-format = <2>;
+		ti,lvds-bpp = <24>;
+		ti,width-mm = <217>;
+		ti,height-mm = <136>;
+		enable-gpios = <&gpio5 20 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lvds>;
+		status = "okay";
+
+		display-timings {
+			lvds {
+				clock-frequency = <75000000>;
+				hactive = <1280>;
+				vactive = <800>;
+				hback-porch = <40>;
+				hfront-porch = <40>;
+				vback-porch = <29>;
+				vfront-porch = <13>;
+				hsync-len = <48>;
+				vsync-len = <3>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <0>;
+				pixelclk-active = <0>;
+			};
+           
+
+		};
+        
+        
+        status = "okay";
+        ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            port@0 {
+                reg = <0>;
+                data-lanes = <4>;
+                sn65dsi83_in: endpoint {
+                    remote-endpoint = <&mipi_dsi_out>;
+                };
+            };
+            port@2 {
+               reg = <2>;
+               data-lanes = <4>; 
+                sn65dsi83_lvds_out: endpoint {
+                    remote-endpoint = <&lvds_panel_in>;
+                };
+            };
+        };
+    };
+
+
+
+};
+
+&mipi_dsi {
+    status = "okay";
+
+    port@1 {
+        mipi_dsi_out: endpoint {
+            remote-endpoint = <&sn65dsi83_in>;
+            attach-bridge;
+        };
+    };
+
+
+};
+
+
+/ {
+
+    panel_backlight: panel-backlight {
+        compatible = "pwm-backlight";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_panel_backlight_en>;
+        pwms = <&pwm2 0 25000 0>;
+
+        brightness-levels = < 0  1  2  3  4  5  6  7  8  9
+                             10 11 12 13 14 15 16 17 18 19
+                             20 21 22 23 24 25 26 27 28 29
+                             30 31 32 33 34 35 36 37 38 39
+                             40 41 42 43 44 45 46 47 48 49
+                             50 51 52 53 54 55 56 57 58 59
+                             60 61 62 63 64 65 66 67 68 69
+                             70 71 72 73 74 75 76 77 78 79
+                             80 81 82 83 84 85 86 87 88 89
+                             90 91 92 93 94 95 96 97 98 99
+                             100>;
+        default-brightness-level = <80>;
+
+        enable-gpios = <&gpio5 5 0>;
+    };
+
+};
+
+&iomuxc {
+
+    pinctrl_panel_reset_std: panel_reset {
+        fsl,pins = <
+            MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28       0x19
+        >;
+    };
+
+    pinctrl_panel_backlight_en: panel_backlight_en {
+        fsl,pins = <
+            MX8MM_IOMUXC_SPDIF_EXT_CLK_GPIO5_IO5            0x19
+        >;
+    };
+
+    pinctrl_panel_backlight_pwm: panel_backlight_pwm {
+        fsl,pins = <
+            MX8MM_IOMUXC_SPDIF_RX_PWM2_OUT                  0x19
+        >;
+    };
+
+    pinctrl_touch: touchgpio {
+        fsl,pins = <
+            MX8MM_IOMUXC_UART1_TXD_GPIO5_IO23               0x41    /* interrupt */
+            MX8MM_IOMUXC_SPDIF_TX_GPIO5_IO3                 0x19    /* reset */
+        >;
+    };
+
+    pinctrl_mipi2lvds_std: mipi2lvds {
+        fsl,pins = <
+            MX8MM_IOMUXC_UART1_RXD_GPIO5_IO22       0x19        /* reset */
+        >;
+    };
+
+};
+
+&pwm2 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_panel_backlight_pwm>;
+    status = "okay";
+};
+
+
+/ {
+    panel: panel {
+		compatible = "panel-lvds";
+        backlight = <&panel_backlight>;
+		height-mm = <136>;
+		width-mm = <217>;
+
+		data-mapping = "vesa-24";
+
+		panel-timing {
+			clock-frequency = <75000000>;
+			hactive = <1280>;
+			vactive = <800>;
+			hback-porch = <40>;
+			hfront-porch = <40>;
+			hsync-len = <48>;
+			vback-porch = <29>;
+			vfront-porch = <13>;
+			vsync-len = <3>;
+		};
+
+        port {
+            lvds_panel_in: endpoint {
+                remote-endpoint = <&sn65dsi83_lvds_out>;
+            };
+        };
+    };
+};
+
+
+
+/ {
+    model = "SoMLabs VisionSOM i.MX8MM CB-STD/LVDS with sn65dsi83";
+};
+
+

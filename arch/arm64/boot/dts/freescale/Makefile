@@ -83,7 +83,8 @@ dtb-$(CONFIG_ARCH_MXC) += visionsom-8mm-cb-std.dtb \
 			  visionsom-8mm-cb-adv-mipi10.dtb \
 			  visionsom-8mm-cb-adv-hdmi.dtb \
 			  visionsom-8mm-cb-adv-lvds.dtb \
-			  visionsbc-8mmini.dtb
+			  visionsbc-8mmini.dtb \
+			  visionsom-8mm-custom.dtb
 
 dtb-$(CONFIG_ARCH_MXC) += spacesom-8mplus-cb-adv.dtb
 
